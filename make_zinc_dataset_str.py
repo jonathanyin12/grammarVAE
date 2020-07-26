@@ -16,7 +16,7 @@ f.close()
 
 count = 0
 MAX_LEN = 120
-OH = np.zeros((len(L), MAX_LEN,DIM), dtype=np.int8)
+OH = np.zeros((len(L), MAX_LEN,DIM))
 for chem in tqdm(L):
     indices = []
     for c in chem:
