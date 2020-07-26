@@ -16,7 +16,7 @@ f.close()
 
 count = 0
 MAX_LEN = 120
-OH = np.zeros((len(L), MAX_LEN,DIM))
+OH = np.zeros((len(L), MAX_LEN,DIM), dtype=np.int8)
 for chem in tqdm(L):
     indices = []
     for c in chem:
@@ -28,5 +28,5 @@ for chem in tqdm(L):
 f.close()
 h5f = h5py.File('zinc_str_dataset.h5','w')
 h5f.create_dataset('data', data=OH)
-h5f.create_dataset('chr',  data=chars)
+h5f.create_dataset('chr',  data=np.string_(chars))
 h5f.close()
