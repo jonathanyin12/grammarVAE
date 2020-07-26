@@ -2,6 +2,7 @@ import numpy as np
 import pdb
 from models.utils import many_one_hot
 import h5py
+from tqdm.notebook import tqdm
 
 f = open('data/250k_rndm_zinc_drugs_clean.smi','r')
 
@@ -15,8 +16,8 @@ f.close()
 
 count = 0
 MAX_LEN = 120
-OH = np.zeros((249456,MAX_LEN,DIM))
-for chem in L:
+OH = np.zeros((len(L), MAX_LEN,DIM), dtype=np.int8)
+for chem in tqdm(L):
     indices = []
     for c in chem:
         indices.append(chars.index(c))

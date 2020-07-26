@@ -9,7 +9,7 @@ def one_hot_array(i, n):
 def many_one_hot(indices, d):
     # (t,) - indices for n documents and t timesteps
     t = indices.shape[0]
-    oh = np.zeros((t,d))
+    oh = np.zeros((t,d), dtype=np.int8)
     oh[np.arange(t), indices] = 1
     return oh
 

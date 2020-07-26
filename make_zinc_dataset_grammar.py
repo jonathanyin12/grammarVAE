@@ -5,7 +5,7 @@ import zinc_grammar
 import numpy as np
 import h5py
 import molecule_vae
-
+from tqdm.notebook import tqdm
 
 
 f = open('data/250k_rndm_zinc_drugs_clean.smi','r')
@@ -32,7 +32,7 @@ def to_one_hot(smiles):
     parse_trees = [next(parser.parse(t)) for t in tokens]
     productions_seq = [tree.productions() for tree in parse_trees]
     indices = [np.array([prod_map[prod] for prod in entry], dtype=int) for entry in productions_seq]
-    one_hot = np.zeros((len(indices), MAX_LEN, NCHARS), dtype=np.float32)
+    one_hot = np.zeros((len(indices), MAX_LEN, NCHARS), dtype=np.int8)
     for i in range(len(indices)):
         num_productions = len(indices[i])
         one_hot[i][np.arange(num_productions),indices[i]] = 1.
@@ -40,8 +40,8 @@ def to_one_hot(smiles):
     return one_hot
 
 
-OH = np.zeros((len(L),MAX_LEN,NCHARS))
-for i in range(0, len(L), 100):
+OH = np.zeros((len(L),MAX_LEN,NCHARS), dtype=np.int8)
+for i in tqdm(range(0, len(L), 100)):
     print('Processing: i=[' + str(i) + ':' + str(i+100) + ']')
     onehot = to_one_hot(L[i:i+100])
     OH[i:i+100,:,:] = onehot
