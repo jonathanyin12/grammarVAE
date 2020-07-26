@@ -2,7 +2,7 @@ import numpy as np
 import pdb
 from models.utils import many_one_hot
 import h5py
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 
 f = open('data/250k_rndm_zinc_drugs_clean.smi','r')
 

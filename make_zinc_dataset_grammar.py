@@ -5,7 +5,7 @@ import zinc_grammar
 import numpy as np
 import h5py
 import molecule_vae
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 
 
 f = open('data/250k_rndm_zinc_drugs_clean.smi','r')
