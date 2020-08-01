@@ -181,7 +181,7 @@ class MoleculeVAE():
 
         # Property prediction
         hp = Dense(1024, name='dense_property_tower', activation='relu')(l)
-        hp = Dense(1, name='dense_property_output', activation='linear')(hp)
+        hp = Dense(1, name='property_loss', activation='linear')(hp)
 
         # Tower 2
         # hf = Dense(128, name='dense_tower_1', activation = 'relu')(l)
