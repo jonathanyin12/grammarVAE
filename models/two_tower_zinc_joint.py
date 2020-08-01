@@ -180,8 +180,8 @@ class MoleculeVAE():
         l = Dense(latent_rep_size, name='latent_input', activation='relu')(z)
 
         # Property prediction
-        hp = Dense(1024, name='dense_tower_1', activation='relu')(l)
-        hp = Dense(1, name='dense_tower_2', activation='linear')(hp)
+        hp = Dense(1024, name='dense_property_tower', activation='relu')(l)
+        hp = Dense(1, name='dense_property_output', activation='linear')(hp)
 
         # Tower 2
         # hf = Dense(128, name='dense_tower_1', activation = 'relu')(l)
