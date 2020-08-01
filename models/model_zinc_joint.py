@@ -162,7 +162,7 @@ class MoleculeVAE():
 
         # Property prediction
         hp = Dense(1024, name='dense_tower_1', activation='relu')(l)
-        hp = Dense(1, name='dense_tower_2', activation='sigmoid')(hp)
+        hp = Dense(1, name='dense_tower_2', activation='linear')(hp)
 
         # Tower 1
         h = RepeatVector(max_length, name='repeat_vector')(l)
