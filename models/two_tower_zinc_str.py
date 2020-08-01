@@ -117,7 +117,7 @@ class MoleculeVAE():
             elif K.int_shape(x_decoded_mean)[1] == max_length_func:
                 t = tf.reshape(x, (-1, max_length_func))
                 p = tf.reshape(x_decoded_mean, (-1, max_length_func))
-                xent_loss = mse(t, p)
+                xent_loss = max_length_func * mse(t, p)
             else:
                 raise ValueError('UNRECOGNIZED SHAPE')
 

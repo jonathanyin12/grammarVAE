@@ -4,7 +4,8 @@ import numpy as np
 import zinc_grammar
 import models.model_zinc
 import models.model_zinc_str
-
+import models.two_tower_zinc
+import models.two_tower_zinc_str
 
 def get_zinc_tokenizer(cfg):
     long_tokens = [a for a in list(cfg._lexical_index.keys()) if len(a) > 1]
