@@ -7,6 +7,7 @@ from keras.layers.core import Dense, Activation, Flatten, RepeatVector
 from keras.layers.wrappers import TimeDistributed
 from keras.layers.recurrent import GRU
 from keras.layers.convolutional import Convolution1D
+from keras.optimizers import Adam
 import tensorflow as tf
 import zinc_grammar as G
 
@@ -73,7 +74,7 @@ class MoleculeVAE():
             self.decoder.load_weights(weights_file, by_name=True)
             self.encoderMV.load_weights(weights_file, by_name=True)
         else:
-            self.autoencoder.compile(optimizer='Adam',
+            self.autoencoder.compile(optimizer=Adam(learning_rate=5e-4),
                                      loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss})
 
     # Encoder tower structure
@@ -90,7 +91,7 @@ class MoleculeVAE():
 
         # Merge
         h = Concatenate()([h, hf])
-        return Dense(435, activation='relu', name='dense_1')(h)
+        return Dense(512, activation='relu', name='dense_1')(h)
 
     def _encoderMeanVar(self, x, f, latent_rep_size, max_length, max_length_func):
         h = self._towers(x, f)
@@ -150,9 +151,9 @@ class MoleculeVAE():
 
         # Tower 1
         h = RepeatVector(max_length, name='repeat_vector')(l)
-        h = GRU(501, return_sequences=True, name='gru_1')(h)
-        h = GRU(501, return_sequences=True, name='gru_2')(h)
-        h = GRU(501, return_sequences=True, name='gru_3')(h)
+        h = GRU(512, return_sequences=True, name='gru_1')(h)
+        h = GRU(512, return_sequences=True, name='gru_2')(h)
+        h = GRU(512, return_sequences=True, name='gru_3')(h)
         h = TimeDistributed(Dense(charset_length), name='decoded_mean')(h)
 
         # Tower 2
