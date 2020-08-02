@@ -3,8 +3,10 @@ import numpy as np
 
 import zinc_grammar
 import models.model_zinc
+import models.model_zinc_joint
 import models.model_zinc_str
 import models.two_tower_zinc
+import models.two_tower_zinc_joint
 import models.two_tower_zinc_str
 
 def get_zinc_tokenizer(cfg):
@@ -50,10 +52,11 @@ def prods_to_eq(prods):
 
 class ZincGrammarModel(object):
 
-    def __init__(self, weights_file, latent_rep_size=56):
+    def __init__(self, weights_file, latent_rep_size=56, joint=False):
         """ Load the (trained) zinc encoder/decoder, grammar model. """
         self._grammar = zinc_grammar
-        self._model = models.model_zinc
+        self._joint = joint
+        self._model = models.model_zinc if not self._joint else models.model_zinc_joint
         self.MAX_LEN = self._model.MAX_LEN
         self._productions = self._grammar.GCFG.productions()
         self._prod_map = {}
@@ -114,7 +117,10 @@ class ZincGrammarModel(object):
     def decode(self, z):
         """ Sample from the grammar decoder """
         assert z.ndim == 2
-        unmasked = self.vae.decoder.predict(z)
+        if self._joint:
+            unmasked, decoded_property = self.vae.decoder.predict(z)
+        else:
+            unmasked = self.vae.decoder.predict(z)
         X_hat = self._sample_using_masks(unmasked)
         # Convert from one-hot to sequence of production rules
         prod_seq = [[self._productions[X_hat[index,t].argmax()] 
@@ -159,9 +165,10 @@ class ZincCharacterModel(object):
 
 class TwoTowerGrammarModel(object):
 
-    def __init__(self, weights_file, latent_rep_size=56):
+    def __init__(self, weights_file, latent_rep_size=56, joint=False):
         """ Load the (trained) zinc encoder/decoder, grammar model. """
         self._grammar = zinc_grammar
+        self.joint = joint
         self._model = models.two_tower_zinc
         self.MAX_LEN = self._model.MAX_LEN
         self._productions = self._grammar.GCFG.productions()
@@ -223,7 +230,11 @@ class TwoTowerGrammarModel(object):
     def decode(self, z):
         """ Sample from the grammar decoder """
         assert z.ndim == 2
-        unmasked, features = self.vae.decoder.predict(z)
+        if self._joint:
+            unmasked, features, decoded_property = self.vae.decoder.predict(z)
+        else:
+            unmasked, features = self.vae.decoder.predict(z)
+
         X_hat = self._sample_using_masks(unmasked)
         # Convert from one-hot to sequence of production rules
         prod_seq = [[self._productions[X_hat[index,t].argmax()]
