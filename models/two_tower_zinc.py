@@ -70,7 +70,7 @@ class MoleculeVAE():
         self.encoderMV = Model(inputs=[x2, f2], outputs=[z_m, z_l_v])
 
         if weights_file:
-            self.autoencoder.load_model(weights_file, custom_objects={'vae_loss': vae_loss})
+            self.autoencoder=load_model(weights_file, custom_objects={'vae_loss': vae_loss})
             self.encoder.load_weights(weights_file, by_name=True)
             self.decoder.load_weights(weights_file, by_name=True)
             self.encoderMV.load_weights(weights_file, by_name=True)
