@@ -1,12 +1,11 @@
 import copy
 from keras import backend as K
-from keras.losses import binary_crossentropy, categorical_crossentropy, mse
+from keras.losses import binary_crossentropy, mse
 from keras.models import Model, load_model
-from keras.layers import Input, Dense, Lambda, Concatenate, Reshape
-from keras.layers.core import Dense, Activation, Flatten, RepeatVector
-from keras.layers.wrappers import TimeDistributed
-from keras.layers.recurrent import GRU
-from keras.layers.convolutional import Convolution1D
+from keras.layers import Input, Lambda, Concatenate, Reshape
+from keras.layers import Dense,  Flatten, RepeatVector
+from keras.layers import TimeDistributed, GRU
+from keras.layers import Convolution1D
 from keras.optimizers import Adam
 import tensorflow as tf
 import zinc_grammar as G
@@ -75,7 +74,7 @@ class MoleculeVAE():
             #     [x1, f1],
             #     [o1, fo1]
             # )
-            self.autoencoder.load_weights(weights_file)
+            # self.autoencoder.load_weights(weights_file)
             self.encoder.load_weights(weights_file, by_name=True)
             self.decoder.load_weights(weights_file, by_name=True)
             self.encoderMV.load_weights(weights_file, by_name=True)
