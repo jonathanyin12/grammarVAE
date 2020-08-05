@@ -10,7 +10,7 @@ from keras.layers.convolutional import Convolution1D
 from keras.optimizers import Adam
 import tensorflow as tf
 import zinc_grammar as G
-
+import numpy as np
 masks_K = K.variable(G.masks)
 ind_of_ind_K = K.variable(G.ind_of_ind)
 
@@ -30,7 +30,7 @@ class MoleculeVAE():
                weights_file=None):
         charset_length = len(charset)
 
-        x = Input(shape=(max_length, charset_length))
+        x = Input(shape=(max_length, charset_length), dtype=np.int8)
         f = Input(shape=(max_length_functional, 1))
 
         _, z = self._buildEncoder(x, f, latent_rep_size, max_length, max_length_functional)
@@ -48,7 +48,7 @@ class MoleculeVAE():
             [o, fo]
         )
 
-        x1 = Input(shape=(max_length, charset_length))
+        x1 = Input(shape=(max_length, charset_length), dtype=np.int8)
         f1 = Input(shape=(max_length_functional, 1))
         vae_loss, z1 = self._buildEncoder(x1, f1, latent_rep_size, max_length, max_length_functional)
         o1, fo1 = self._buildDecoder(
@@ -63,7 +63,7 @@ class MoleculeVAE():
         )
 
         # for obtaining mean and log variance of encoding distribution
-        x2 = Input(shape=(max_length, charset_length))
+        x2 = Input(shape=(max_length, charset_length), dtype=np.int8)
         f2 = Input(shape=(max_length_functional, 1))
         (z_m, z_l_v) = self._encoderMeanVar(x2, f2, latent_rep_size, max_length, max_length_functional)
         self.encoderMV = Model(inputs=[x2, f2], outputs=[z_m, z_l_v])
