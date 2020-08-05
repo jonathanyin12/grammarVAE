@@ -1,7 +1,7 @@
 import copy
 from keras import backend as K
 from keras.losses import binary_crossentropy, categorical_crossentropy, mse
-from keras.models import Model
+from keras.models import Model, load_model
 from keras.layers import Input, Dense, Lambda, Concatenate, Reshape
 from keras.layers.core import Dense, Activation, Flatten, RepeatVector
 from keras.layers.wrappers import TimeDistributed
@@ -70,14 +70,14 @@ class MoleculeVAE():
         self.encoderMV = Model(inputs=[x2, f2], outputs=[z_m, z_l_v])
 
         if weights_file:
-            self.autoencoder.load_weights(weights_file)
+            self.autoencoder.load_model(weights_file, custom_objects={'vae_loss': vae_loss})
             self.encoder.load_weights(weights_file, by_name=True)
             self.decoder.load_weights(weights_file, by_name=True)
             self.encoderMV.load_weights(weights_file, by_name=True)
-
-        self.autoencoder.compile(optimizer='Adam',
-                                 loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss},
-                                 metrics=['accuracy'])
+        else:
+            self.autoencoder.compile(optimizer='Adam',
+                                     loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss},
+                                     metrics=['accuracy'])
 
     # Encoder tower structure
     def _towers(self, x, f, max_length, max_length_func):
