@@ -6,6 +6,10 @@ from tensorflow.keras.layers import Input, Dense, Lambda, Concatenate, Reshape, 
 from tensorflow.keras.optimizers import Adam
 import tensorflow as tf
 import zinc_grammar as G
+import h5py
+from tensorflow.python.keras import optimizers
+from tensorflow.python.keras.saving import model_config as model_config_lib
+from tensorflow.python.keras.saving.saved_model import json_utils
 
 masks_K = K.variable(G.masks)
 ind_of_ind_K = K.variable(G.ind_of_ind)
@@ -64,10 +68,32 @@ class MoleculeVAE():
         (z_m, z_l_v) = self._encoderMeanVar(x2, f2, latent_rep_size, max_length, max_length_functional)
         self.encoderMV = Model(inputs=[x2, f2], outputs=[z_m, z_l_v])
 
+
         if weights_file:
             self.autoencoder = load_model(weights_file, custom_objects={'vae_loss': vae_loss})
             optimizer_weights = self.autoencoder.optimizer.weights
             trainable_variables = self.autoencoder.trainable_variables
+
+            opened_new_file = not isinstance(weights_file, h5py.File)
+            if opened_new_file:
+                f = h5py.File(weights_file, mode='r')
+            else:
+                f = weights_file
+            #
+            # model_config = f.attrs.get('model_config')
+            # if model_config is None:
+            #     raise ValueError('No model found in config file.')
+            # model_config = json_utils.decode(model_config.decode('utf-8'))
+            # model = model_config_lib.model_from_config(model_config, custom_objects={'vae_loss': vae_loss})
+
+
+            training_config = f.attrs.get('training_config')
+            optimizer_config = training_config['optimizer_config']
+            optimizer = optimizers.deserialize(optimizer_config)
+            optimizer._create_all_weights(trainable_variables)
+            optimizer.set_weights(optimizer_weights)
+            
+            print("trainable_variables", trainable_variables.shape)
             self.autoencoder = Model(
                 [x1, f1],
                 [o1, fo1]
@@ -77,10 +103,9 @@ class MoleculeVAE():
             self.encoder.load_weights(weights_file, by_name=True)
             self.decoder.load_weights(weights_file, by_name=True)
             self.encoderMV.load_weights(weights_file, by_name=True)
-            self.autoencoder.compile(optimizer="adam",
+            self.autoencoder.compile(optimizer=optimizer,
                                      loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss})
-            self.autoencoder.optimizer._create_all_weights(trainable_variables)
-            self.autoencoder.optimizer.set_weights(optimizer_weights)
+
         else:
             self.autoencoder.compile(optimizer=Adam(learning_rate=5e-4),
                                      loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss})
