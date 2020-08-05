@@ -8,8 +8,7 @@ import tensorflow as tf
 import zinc_grammar as G
 import h5py
 from tensorflow.python.keras import optimizers
-from tensorflow.python.keras.saving import model_config as model_config_lib
-from tensorflow.python.keras.saving.saved_model import json_utils
+
 
 masks_K = K.variable(G.masks)
 ind_of_ind_K = K.variable(G.ind_of_ind)
@@ -92,7 +91,7 @@ class MoleculeVAE():
             optimizer = optimizers.deserialize(optimizer_config)
             optimizer._create_all_weights(trainable_variables)
             optimizer.set_weights(optimizer_weights)
-            
+
             print("trainable_variables", trainable_variables.shape)
             self.autoencoder = Model(
                 [x1, f1],
