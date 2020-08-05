@@ -72,9 +72,9 @@ class MoleculeVAE():
             self.autoencoder = load_model(weights_file, custom_objects={'vae_loss': vae_loss})
             optimizer_weights = self.autoencoder.optimizer.weights
             trainable_variables = self.autoencoder.trainable_variables
-            print("optimizer_weights", optimizer_weights.shape)
+            print("optimizer_weights", optimizer_weights)
 
-            print("trainable_variables", trainable_variables.shape)
+            print("trainable_variables", trainable_variables)
 
             opened_new_file = not isinstance(weights_file, h5py.File)
             if opened_new_file:
