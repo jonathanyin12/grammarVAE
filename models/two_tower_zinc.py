@@ -95,7 +95,7 @@ class MoleculeVAE():
         return Dense(435, activation='relu', name='dense_1')(h)
 
     def _encoderMeanVar(self, x, f, latent_rep_size, max_length, max_length_func):
-        h = self._towers(x, f, max_length, max_length_func)
+        h = self._towers(x, f)
 
         z_mean = Dense(latent_rep_size, name='z_mean', activation='linear')(h)
         z_log_var = Dense(latent_rep_size, name='z_log_var', activation='linear')(h)
@@ -103,7 +103,7 @@ class MoleculeVAE():
         return z_mean, z_log_var
 
     def _buildEncoder(self, x, f, latent_rep_size, max_length, max_length_func, epsilon_std=0.01):
-        h = self._towers(x, f, max_length, max_length_func)
+        h = self._towers(x, f)
 
         def sampling(args):
             z_mean_, z_log_var_ = args
