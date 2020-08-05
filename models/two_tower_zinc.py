@@ -40,7 +40,6 @@ class MoleculeVAE():
             encoded_input,
             latent_rep_size,
             max_length,
-            max_length_functional,
             charset_length
         )
         self.decoder = Model(
@@ -55,7 +54,6 @@ class MoleculeVAE():
             z1,
             latent_rep_size,
             max_length,
-            max_length_functional,
             charset_length
         )
         self.autoencoder = Model(
