@@ -76,8 +76,7 @@ class MoleculeVAE():
             self.encoderMV.load_weights(weights_file, by_name=True)
         else:
             self.autoencoder.compile(optimizer='Adam',
-                                     loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss},
-                                     metrics=['accuracy'])
+                                     loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss})
 
     # Encoder tower structure
     def _towers(self, x, f):
