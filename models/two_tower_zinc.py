@@ -70,18 +70,18 @@ class MoleculeVAE():
 
         if weights_file:
             self.autoencoder = load_model(weights_file, custom_objects={'vae_loss': vae_loss})
-            optimizer_weights = self.autoencoder.optimizer.weights
-            self.autoencoder = Model(
-                [x1, f1],
-                [o1, fo1]
-            )
+            # optimizer_weights = self.autoencoder.optimizer.weights
+            # self.autoencoder = Model(
+            #     [x1, f1],
+            #     [o1, fo1]
+            # )
             self.autoencoder.load_weights(weights_file)
             self.encoder.load_weights(weights_file, by_name=True)
             self.decoder.load_weights(weights_file, by_name=True)
             self.encoderMV.load_weights(weights_file, by_name=True)
-            self.autoencoder.compile(optimizer=Adam(learning_rate=5e-4),
-                                     loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss})
-            self.autoencoder.optimizer.set_weights(optimizer_weights)
+            # self.autoencoder.compile(optimizer=Adam(learning_rate=5e-4),
+            #                          loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss})
+            # self.autoencoder.optimizer.set_weights(optimizer_weights)
         else:
             self.autoencoder.compile(optimizer=Adam(learning_rate=5e-4),
                                      loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss})
