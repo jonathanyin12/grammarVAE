@@ -71,7 +71,7 @@ class MoleculeVAE():
             #     [x1, f1],
             #     [o1, fo1]
             # )
-            self.autoencoder.load_weights(weights_file)
+            # self.autoencoder.load_weights(weights_file)
             self.encoder.load_weights(weights_file, by_name=True)
             self.decoder.load_weights(weights_file, by_name=True)
             self.encoderMV.load_weights(weights_file, by_name=True)
@@ -156,9 +156,9 @@ class MoleculeVAE():
 
         # Tower 1
         h = RepeatVector(max_length, name='repeat_vector')(l)
-        h = GRU(512, return_sequences=True, reset_after=True, name='gru_1')(h)
-        h = GRU(512, return_sequences=True, reset_after=True, name='gru_2')(h)
-        h = GRU(512, return_sequences=True, reset_after=True, name='gru_3')(h)
+        h = GRU(512, return_sequences=True, reset_after=False, name='gru_1')(h)
+        h = GRU(512, return_sequences=True, reset_after=False, name='gru_2')(h)
+        h = GRU(512, return_sequences=True, reset_after=False, name='gru_3')(h)
         h = TimeDistributed(Dense(charset_length), name='decoded_mean')(h)
 
         # Tower 2
