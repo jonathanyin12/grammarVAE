@@ -72,27 +72,25 @@ class MoleculeVAE():
             self.autoencoder = load_model(weights_file, custom_objects={'vae_loss': vae_loss})
             optimizer_weights = self.autoencoder.optimizer.weights
             trainable_variables = self.autoencoder.trainable_variables
+            print("optimizer_weights", optimizer_weights.shape)
+
+            print("trainable_variables", trainable_variables.shape)
 
             opened_new_file = not isinstance(weights_file, h5py.File)
             if opened_new_file:
                 f = h5py.File(weights_file, mode='r')
             else:
                 f = weights_file
-            #
-            # model_config = f.attrs.get('model_config')
-            # if model_config is None:
-            #     raise ValueError('No model found in config file.')
-            # model_config = json_utils.decode(model_config.decode('utf-8'))
-            # model = model_config_lib.model_from_config(model_config, custom_objects={'vae_loss': vae_loss})
 
 
             training_config = f.attrs.get('training_config')
+            print("training_config", training_config)
+
             optimizer_config = training_config['optimizer_config']
             optimizer = optimizers.deserialize(optimizer_config)
             optimizer._create_all_weights(trainable_variables)
             optimizer.set_weights(optimizer_weights)
 
-            print("trainable_variables", trainable_variables.shape)
             self.autoencoder = Model(
                 [x1, f1],
                 [o1, fo1]
