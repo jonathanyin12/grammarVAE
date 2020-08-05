@@ -1,13 +1,9 @@
 import copy
-from keras import backend as K
-from keras.losses import binary_crossentropy, categorical_crossentropy, mse
-from keras.models import Model, load_model
-from keras.layers import Input, Dense, Lambda, Concatenate, Reshape
-from keras.layers.core import Dense, Activation, Flatten, RepeatVector
-from keras.layers.wrappers import TimeDistributed
-from keras.layers.recurrent import GRU
-from keras.layers.convolutional import Convolution1D
-from keras.optimizers import Adam
+from tensorflow.keras import backend as K
+from tensorflow.keras.losses import binary_crossentropy, mse
+from tensorflow.keras.models import Model, load_model
+from tensorflow.keras.layers import Input, Dense, Lambda, Concatenate, Reshape, Flatten, RepeatVector, TimeDistributed, GRU, Convolution1D
+from tensorflow.keras.optimizers import Adam
 import tensorflow as tf
 import zinc_grammar as G
 
