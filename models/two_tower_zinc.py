@@ -83,7 +83,7 @@ class MoleculeVAE():
             #                          loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss})
             # self.autoencoder.optimizer.set_weights(optimizer_weights)
         else:
-            self.autoencoder.compile(optimizer=Adam(learning_rate=5e-4), experimental_run_tf_function=False,
+            self.autoencoder.compile(optimizer=Adam(learning_rate=5e-4),
                                      loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss})
 
     # Encoder tower structure
