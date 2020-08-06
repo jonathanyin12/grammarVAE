@@ -27,7 +27,8 @@ class MoleculeVAE():
                max_length=MAX_LEN,
                max_length_functional=MAX_LEN_FUNCTIONAL,
                latent_rep_size=2,
-               weights_file=None):
+               weights_file=None,
+               load_optimizer=False):
         charset_length = len(charset)
 
         x = Input(shape=(max_length, charset_length))
@@ -70,16 +71,14 @@ class MoleculeVAE():
 
 
         if weights_file:
-            self.autoencoder = load_model(weights_file, custom_objects={'vae_loss': vae_loss})
-            trainable_variables = self.autoencoder.trainable_variables
-
+            temp_autoencoder = load_model(weights_file, custom_objects={'vae_loss': vae_loss})
+            trainable_variables = temp_autoencoder.trainable_variables
 
             opened_new_file = not isinstance(weights_file, h5py.File)
             if opened_new_file:
                 f = h5py.File(weights_file, mode='r')
             else:
                 f = weights_file
-
 
             training_config = json.loads(f.attrs.get('training_config'))
 
@@ -124,19 +123,20 @@ class MoleculeVAE():
             optimizer._create_hypers()
             optimizer._create_slots(trainable_variables)
             optimizer.set_weights(optimizer_weight_values)
-            self.autoencoder = Model(
-                [x1, f1],
-                [o1, fo1]
-            )
+
             self.autoencoder.load_weights(weights_file)
 
             self.encoder.load_weights(weights_file, by_name=True)
             self.decoder.load_weights(weights_file, by_name=True)
             self.encoderMV.load_weights(weights_file, by_name=True)
-            self.autoencoder.compile(optimizer=optimizer,
-                                     loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss})
-            print("learning rate: ", K.eval(self.autoencoder.optimizer.lr))
-            print("Optimizer weights: ", [K.eval(w) for w in self.autoencoder.optimizer.weights])
+            if load_optimizer:
+                self.autoencoder.compile(optimizer=optimizer,
+                                         loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss})
+                print("learning rate: ", K.eval(self.autoencoder.optimizer.lr))
+                print("Optimizer weights: ", [K.eval(w) for w in self.autoencoder.optimizer.weights])
+            else:
+                self.autoencoder.compile(optimizer=Adam(learning_rate=5e-4),
+                                         loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss})
         else:
             self.autoencoder.compile(optimizer=Adam(learning_rate=5e-4),
                                      loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss})
@@ -229,5 +229,5 @@ class MoleculeVAE():
     def save(self, filename):
         self.autoencoder.save_weights(filename)
 
-    def load(self, charset, weights_file, latent_rep_size=128, max_length=MAX_LEN):
-        self.create(charset, max_length=max_length, weights_file=weights_file, latent_rep_size=latent_rep_size)
+    def load(self, charset, weights_file, latent_rep_size=128, max_length=MAX_LEN, load_optimizer=False):
+        self.create(charset, max_length=max_length, weights_file=weights_file, latent_rep_size=latent_rep_size, load_optimizer=load_optimizer)
