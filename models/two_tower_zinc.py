@@ -1,5 +1,6 @@
 import copy
 from tensorflow.keras import backend as K
+from tensorflow import keras
 from tensorflow.keras.losses import binary_crossentropy, mse
 from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.layers import Input, Dense, Lambda, Concatenate, Reshape, Flatten, RepeatVector, TimeDistributed, GRU, Convolution1D
@@ -124,7 +125,7 @@ class MoleculeVAE():
             optimizer._create_slots(trainable_variables)
             optimizer.set_weights(optimizer_weight_values)
 
-            self.autoencoder.load_weights(weights_file)
+            self.autoencoder.load_weights(weights_file, by_name=True)
 
             self.encoder.load_weights(weights_file, by_name=True)
             self.decoder.load_weights(weights_file, by_name=True)
