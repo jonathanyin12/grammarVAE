@@ -87,12 +87,47 @@ class MoleculeVAE():
             training_config = json.loads(f.attrs.get('training_config'))
             print("training_config", training_config)
 
+            def load_attributes_from_hdf5_group(group, name):
+                """Loads attributes of the specified name from the HDF5 group.
+                This method deals with an inherent problem
+                of HDF5 file which is not able to store
+                data larger than HDF5_OBJECT_HEADER_LIMIT bytes.
+                Arguments:
+                    group: A pointer to a HDF5 group.
+                    name: A name of the attributes to load.
+                Returns:
+                    data: Attributes data.
+                """
+                if name in group.attrs:
+                    data = [n.decode('utf8') for n in group.attrs[name]]
+                else:
+                    data = []
+                    chunk_id = 0
+                    while '%s%d' % (name, chunk_id) in group.attrs:
+                        data.extend(
+                            [n.decode('utf8') for n in group.attrs['%s%d' % (name, chunk_id)]])
+                        chunk_id += 1
+                return data
+
+            def load_optimizer_weights_from_hdf5_group(hdf5_group):
+                """Load optimizer weights from a HDF5 group.
+                Arguments:
+                    hdf5_group: A pointer to a HDF5 group.
+                Returns:
+                    data: List of optimizer weight names.
+                """
+                weights_group = hdf5_group['optimizer_weights']
+                optimizer_weight_names = load_attributes_from_hdf5_group(
+                    weights_group, 'weight_names')
+                return [weights_group[weight_name] for weight_name in optimizer_weight_names]
+            optimizer_weight_values = load_optimizer_weights_from_hdf5_group(f)
+
             optimizer_config = training_config['optimizer_config']
             optimizer = optimizers.deserialize(optimizer_config)
             _ = optimizer.iterations
             optimizer._create_hypers()
             optimizer._create_slots(trainable_variables)
-            optimizer.set_weights(optimizer_weights)
+            optimizer.set_weights(optimizer_weight_values)
             self.autoencoder = Model(
                 [x1, f1],
                 [o1, fo1]
