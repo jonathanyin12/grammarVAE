@@ -91,7 +91,7 @@ class MoleculeVAE():
         h = Convolution1D(9, 9, activation = 'relu', name='conv_2')(h)
         h = Convolution1D(10, 11, activation = 'relu', name='conv_3')(h)
         h = Flatten(name='flatten_1')(h)
-        h = Dense(435, activation = 'relu', name='dense_1')(h)
+        h = Dense(512, activation = 'relu', name='dense_1')(h)
 
         def sampling(args):
             z_mean_, z_log_var_ = args
