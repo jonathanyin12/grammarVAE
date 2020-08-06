@@ -8,6 +8,7 @@ import tensorflow as tf
 import zinc_grammar as G
 import h5py
 from tensorflow.python.keras import optimizers
+import json
 
 
 masks_K = K.variable(G.masks)
@@ -86,7 +87,7 @@ class MoleculeVAE():
             training_config = f.attrs.get('training_config')
             print("training_config", training_config)
 
-            optimizer_config = training_config['optimizer_config']
+            optimizer_config = json.loads(training_config)['optimizer_config']
             optimizer = optimizers.deserialize(optimizer_config)
             optimizer._create_all_weights(trainable_variables)
             optimizer.set_weights(optimizer_weights)
