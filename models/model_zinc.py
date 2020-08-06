@@ -6,6 +6,7 @@ from keras.layers import Input, Dense, Lambda
 from keras.layers.core import Dense, Activation, Flatten, RepeatVector
 from keras.layers.wrappers import TimeDistributed
 from keras.layers.recurrent import GRU
+from keras.optimizers import Adam
 from keras.layers.convolutional import Convolution1D
 import tensorflow as tf
 import zinc_grammar as G
@@ -67,7 +68,7 @@ class MoleculeVAE():
             self.decoder.load_weights(weights_file, by_name = True)
             self.encoderMV.load_weights(weights_file, by_name = True)
 
-        self.autoencoder.compile(optimizer = 'Adam',
+        self.autoencoder.compile(optimizer=Adam(learning_rate=5e-4),
                                  loss = vae_loss,
                                  metrics = ['accuracy'])
 
@@ -77,7 +78,7 @@ class MoleculeVAE():
         h = Convolution1D(9, 9, activation = 'relu', name='conv_2')(h)
         h = Convolution1D(10, 11, activation = 'relu', name='conv_3')(h)
         h = Flatten(name='flatten_1')(h)
-        h = Dense(435, activation = 'relu', name='dense_1')(h)
+        h = Dense(512, activation = 'relu', name='dense_1')(h)
 
         z_mean = Dense(latent_rep_size, name='z_mean', activation = 'linear')(h)
         z_log_var = Dense(latent_rep_size, name='z_log_var', activation = 'linear')(h)
@@ -128,9 +129,9 @@ class MoleculeVAE():
     def _buildDecoder(self, z, latent_rep_size, max_length, charset_length):
         h = Dense(latent_rep_size, name='latent_input', activation = 'relu')(z)
         h = RepeatVector(max_length, name='repeat_vector')(h)
-        h = GRU(501, return_sequences = True, name='gru_1')(h)
-        h = GRU(501, return_sequences = True, name='gru_2')(h)
-        h = GRU(501, return_sequences = True, name='gru_3')(h)
+        h = GRU(512, return_sequences = True, name='gru_1')(h)
+        h = GRU(512, return_sequences = True, name='gru_2')(h)
+        h = GRU(512, return_sequences = True, name='gru_3')(h)
         return TimeDistributed(Dense(charset_length), name='decoded_mean')(h) # don't do softmax, we do this in the loss now
 
     def save(self, filename):
