@@ -3,7 +3,7 @@ from tensorflow.keras import backend as K
 from tensorflow.keras.losses import binary_crossentropy, mse
 from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.layers import Input, Dense, Lambda, Concatenate, Reshape, Flatten, RepeatVector, TimeDistributed, GRU, Convolution1D
-from tensorflow.python.keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adam
 import tensorflow as tf
 import zinc_grammar as G
 import h5py
