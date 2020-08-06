@@ -89,6 +89,7 @@ class MoleculeVAE():
 
             optimizer_config = training_config['optimizer_config']
             optimizer = optimizers.deserialize(optimizer_config)
+            _ = optimizer.iterations
             optimizer._create_hypers()
             optimizer._create_slots(trainable_variables)
             optimizer.set_weights(optimizer_weights)
