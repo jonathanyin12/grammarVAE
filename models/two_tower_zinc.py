@@ -3,7 +3,7 @@ from tensorflow.keras import backend as K
 from tensorflow.keras.losses import binary_crossentropy, mse
 from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.layers import Input, Dense, Lambda, Concatenate, Reshape, Flatten, RepeatVector, TimeDistributed, GRU, Convolution1D
-from tensorflow.keras.optimizers import Adam
+from tensorflow.python.keras.optimizers import Adam
 import tensorflow as tf
 import zinc_grammar as G
 import h5py
@@ -84,10 +84,10 @@ class MoleculeVAE():
                 f = weights_file
 
 
-            training_config = f.attrs.get('training_config')
+            training_config = json.loads(f.attrs.get('training_config'))
             print("training_config", training_config)
 
-            optimizer_config = json.loads(training_config)['optimizer_config']
+            optimizer_config = training_config['optimizer_config']
             optimizer = optimizers.deserialize(optimizer_config)._create_all_weights(trainable_variables).set_weights(optimizer_weights)
             self.autoencoder = Model(
                 [x1, f1],
