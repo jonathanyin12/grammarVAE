@@ -71,11 +71,8 @@ class MoleculeVAE():
 
         if weights_file:
             self.autoencoder = load_model(weights_file, custom_objects={'vae_loss': vae_loss})
-            optimizer_weights = self.autoencoder.optimizer.weights
             trainable_variables = self.autoencoder.trainable_variables
-            print("optimizer_weights", optimizer_weights)
 
-            print("trainable_variables", trainable_variables)
 
             opened_new_file = not isinstance(weights_file, h5py.File)
             if opened_new_file:
@@ -85,7 +82,6 @@ class MoleculeVAE():
 
 
             training_config = json.loads(f.attrs.get('training_config'))
-            print("training_config", training_config)
 
             def load_attributes_from_hdf5_group(group, name):
                 """Loads attributes of the specified name from the HDF5 group.
@@ -139,7 +135,8 @@ class MoleculeVAE():
             self.encoderMV.load_weights(weights_file, by_name=True)
             self.autoencoder.compile(optimizer=optimizer,
                                      loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss})
-
+            print("learning rate: ", K.eval(self.autoencoder.optimizer.lr))
+            print("Optimizer weights: ", [K.eval(w) for w in self.autoencoder.optimizer.weights])
         else:
             self.autoencoder.compile(optimizer=Adam(learning_rate=5e-4),
                                      loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss})
