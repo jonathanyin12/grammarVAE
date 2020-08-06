@@ -88,7 +88,10 @@ class MoleculeVAE():
             print("training_config", training_config)
 
             optimizer_config = training_config['optimizer_config']
-            optimizer = optimizers.deserialize(optimizer_config)._create_all_weights(trainable_variables).set_weights(optimizer_weights)
+            optimizer = optimizers.deserialize(optimizer_config)
+            optimizer._create_hypers()
+            optimizer._create_slots(trainable_variables)
+            optimizer.set_weights(optimizer_weights)
             self.autoencoder = Model(
                 [x1, f1],
                 [o1, fo1]
