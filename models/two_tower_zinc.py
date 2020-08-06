@@ -26,7 +26,8 @@ class MoleculeVAE():
                max_length=MAX_LEN,
                max_length_functional=MAX_LEN_FUNCTIONAL,
                latent_rep_size=2,
-               weights_file=None):
+               weights_file=None,
+               learning_rate=0.01):
         charset_length = len(charset)
 
         x = Input(shape=(max_length, charset_length))
@@ -74,12 +75,11 @@ class MoleculeVAE():
             self.encoder.load_weights(weights_file, by_name=True)
             self.decoder.load_weights(weights_file, by_name=True)
             self.encoderMV.load_weights(weights_file, by_name=True)
-            self.autoencoder.compile(optimizer=Adam(learning_rate=5e-4),
-                                     loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss})
 
-        else:
-            self.autoencoder.compile(optimizer=Adam(learning_rate=5e-4),
-                                     loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss})
+        self.autoencoder.compile(optimizer=Adam(learning_rate=learning_rate),
+                                 loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss})
+
+        print(K.eval(self.autoencoder.optimizer.lr))
 
     # Encoder tower structure
     def _towers(self, x, f):
@@ -169,5 +169,5 @@ class MoleculeVAE():
     def save(self, filename):
         self.autoencoder.save_weights(filename)
 
-    def load(self, charset, weights_file, latent_rep_size=128, max_length=MAX_LEN):
-        self.create(charset, max_length=max_length, weights_file=weights_file, latent_rep_size=latent_rep_size)
+    def load(self, charset, weights_file, latent_rep_size=128, max_length=MAX_LEN, learning_rate=0.0001):
+        self.create(charset, max_length=max_length, weights_file=weights_file, latent_rep_size=latent_rep_size, learning_rate=learning_rate)
