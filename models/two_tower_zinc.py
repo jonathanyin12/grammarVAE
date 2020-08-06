@@ -69,7 +69,7 @@ class MoleculeVAE():
 
         if weights_file:
 
-            self.autoencoder.load_weights(weights_file)
+            self.autoencoder.load_weights(weights_file, by_name=True)
 
             self.encoder.load_weights(weights_file, by_name=True)
             self.decoder.load_weights(weights_file, by_name=True)
