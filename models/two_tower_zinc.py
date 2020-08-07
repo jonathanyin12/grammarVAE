@@ -27,7 +27,7 @@ class MoleculeVAE():
                max_length_functional=MAX_LEN_FUNCTIONAL,
                latent_rep_size=2,
                weights_file=None,
-               learning_rate=0.01):
+               learning_rate=0.001):
         charset_length = len(charset)
 
         x = Input(shape=(max_length, charset_length))
