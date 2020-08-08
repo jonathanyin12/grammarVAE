@@ -168,7 +168,7 @@ class TwoTowerGrammarModel(object):
     def __init__(self, weights_file, latent_rep_size=56, joint=False):
         """ Load the (trained) zinc encoder/decoder, grammar model. """
         self._grammar = zinc_grammar
-        self.joint = joint
+        self._joint = joint
         self._model = models.two_tower_zinc
         self.MAX_LEN = self._model.MAX_LEN
         self._productions = self._grammar.GCFG.productions()
