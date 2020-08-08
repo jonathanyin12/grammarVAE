@@ -27,7 +27,8 @@ class MoleculeVAE():
                charset,
                max_length = MAX_LEN,
                latent_rep_size = 2,
-               weights_file = None):
+               weights_file = None,
+               learning_rate=0.001):
         charset_length = len(charset)
         
         x = Input(shape=(max_length, charset_length))
@@ -68,9 +69,10 @@ class MoleculeVAE():
             self.decoder.load_weights(weights_file, by_name = True)
             self.encoderMV.load_weights(weights_file, by_name = True)
 
-        self.autoencoder.compile(optimizer=Adam(learning_rate=5e-4),
+        self.autoencoder.compile(optimizer=Adam(learning_rate=learning_rate),
                                  loss = vae_loss,
                                  metrics = ['accuracy'])
+        print(K.eval(self.autoencoder.optimizer.lr))
 
 
     def _encoderMeanVar(self, x, latent_rep_size, max_length, epsilon_std = 0.01):
@@ -137,5 +139,5 @@ class MoleculeVAE():
     def save(self, filename):
         self.autoencoder.save_weights(filename)
     
-    def load(self, charset, weights_file, latent_rep_size = 2, max_length=MAX_LEN):
-        self.create(charset, max_length = max_length, weights_file = weights_file, latent_rep_size = latent_rep_size)
+    def load(self, charset, weights_file, latent_rep_size = 2, max_length=MAX_LEN, learning_rate=0.0001):
+        self.create(charset, max_length = max_length, weights_file = weights_file, latent_rep_size = latent_rep_size, learning_rate=learning_rate)
