@@ -73,6 +73,7 @@ class MoleculeVAE():
         self.autoencoder.compile(optimizer=Adam(learning_rate=learning_rate),
                                  loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss},
                                  metrics=['accuracy'])
+        print(K.eval(self.autoencoder.optimizer.lr))
 
     def _towers(self, x, f, max_length, max_length_func):
         # Tower 1
