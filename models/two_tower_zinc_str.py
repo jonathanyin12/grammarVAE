@@ -1,12 +1,12 @@
 import copy
 from keras import backend as K
-from keras.losses import binary_crossentropy, categorical_crossentropy, mse
+from keras.losses import binary_crossentropy, mse
 from keras.models import Model
-from keras.layers import Input, Dense, Lambda, Concatenate, Reshape
-from keras.layers.core import Dense, Activation, Flatten, RepeatVector
-from keras.layers.wrappers import TimeDistributed
-from keras.layers.recurrent import GRU
-from keras.layers.convolutional import Convolution1D
+from keras.layers import Input,  Lambda, Concatenate, Reshape
+from keras.layers import Dense, Flatten, RepeatVector
+from keras.layers import TimeDistributed, GRU, Convolution1D
+from keras.optimizers import Adam
+
 import tensorflow as tf
 import pdb
 
@@ -21,7 +21,8 @@ class MoleculeVAE():
                max_length=120,
                max_length_functional=MAX_LEN_FUNCTIONAL,
                latent_rep_size=292,
-               weights_file=None):
+               weights_file=None,
+               learning_rate=0.001):
         charset_length = len(charset)
 
         x = Input(shape=(max_length, charset_length))
@@ -69,7 +70,7 @@ class MoleculeVAE():
             self.decoder.load_weights(weights_file, by_name=True)
             self.encoderMV.load_weights(weights_file, by_name=True)
 
-        self.autoencoder.compile(optimizer='Adam',
+        self.autoencoder.compile(optimizer=Adam(learning_rate=learning_rate),
                                  loss={'decoded_mean': vae_loss, 'decoded_mean_2': vae_loss},
                                  metrics=['accuracy'])
 
@@ -86,7 +87,7 @@ class MoleculeVAE():
 
         # Merge
         h = Concatenate()([h, hf])
-        return Dense(435, activation='relu', name='dense_1')(h)
+        return Dense(512, activation='relu', name='dense_1')(h)
 
     def _encoderMeanVar(self, x, f, latent_rep_size, max_length, max_length_func, epsilon_std=0.01):
         h = self._towers(x, f, max_length, max_length_func)
@@ -115,9 +116,9 @@ class MoleculeVAE():
                 x_decoded_mean = K.flatten(x_decoded_mean)
                 xent_loss = max_length * binary_crossentropy(x, x_decoded_mean)
             elif K.int_shape(x_decoded_mean)[1] == max_length_func:
-                t = tf.reshape(x, (-1, max_length_func))
-                p = tf.reshape(x_decoded_mean, (-1, max_length_func))
-                xent_loss = mse(t, p)
+                x = K.flatten(x)
+                x_decoded_mean = K.flatten(x_decoded_mean)
+                xent_loss = 10 * mse(x, x_decoded_mean)
             else:
                 raise ValueError('UNRECOGNIZED SHAPE')
 
@@ -131,13 +132,12 @@ class MoleculeVAE():
 
         # Tower 1
         h = RepeatVector(max_length, name='repeat_vector')(l)
-        h = GRU(501, return_sequences=True, name='gru_1')(h)
-        h = GRU(501, return_sequences=True, name='gru_2')(h)
-        h = GRU(501, return_sequences=True, name='gru_3')(h)
+        h = GRU(512, return_sequences=True, name='gru_1')(h)
+        h = GRU(512, return_sequences=True, name='gru_2')(h)
+        h = GRU(512, return_sequences=True, name='gru_3')(h)
         h = TimeDistributed(Dense(charset_length, activation='softmax'), name='decoded_mean')(h)
 
         # Tower 2
-        # hf = Dense(128, name='dense_tower_1', activation = 'relu')(l)
         hf = Dense(200, name='dense_tower_2', activation='sigmoid')(l)
         hf = Reshape((200, 1), name='decoded_mean_2')(hf)
 
@@ -146,5 +146,5 @@ class MoleculeVAE():
     def save(self, filename):
         self.autoencoder.save_weights(filename)
 
-    def load(self, charset, weights_file, latent_rep_size=292, max_length=120):
-        self.create(charset, weights_file=weights_file, latent_rep_size=latent_rep_size)
+    def load(self, charset, weights_file, latent_rep_size=292, max_length=120, learning_rate=0.0001):
+        self.create(charset, weights_file=weights_file, latent_rep_size=latent_rep_size, learning_rate=learning_rate)
