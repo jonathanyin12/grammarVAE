@@ -2,11 +2,11 @@ import copy
 from keras import backend as K
 from keras.losses import binary_crossentropy
 from keras.models import Model
-from keras.layers import Input, Dense, Lambda
-from keras.layers.core import Dense, Activation, Flatten, RepeatVector
-from keras.layers.wrappers import TimeDistributed
-from keras.layers.recurrent import GRU
-from keras.layers.convolutional import Convolution1D
+from keras.layers import Input, Lambda
+from keras.layers import Dense, Flatten, RepeatVector
+from keras.layers import TimeDistributed, GRU,  Convolution1D
+from keras.optimizers import Adam
+
 import pdb
 
 class MoleculeVAE():
@@ -17,7 +17,8 @@ class MoleculeVAE():
                charset,
                max_length = 120,
                latent_rep_size = 292,
-               weights_file = None):
+               weights_file = None,
+               learning_rate=0.001):
         charset_length = len(charset)
         
         x = Input(shape=(max_length, charset_length))
@@ -57,16 +58,17 @@ class MoleculeVAE():
             self.decoder.load_weights(weights_file, by_name = True)
             self.encoderMV.load_weights(weights_file, by_name = True)
 
-        self.autoencoder.compile(optimizer = 'Adam',
+        self.autoencoder.compile(optimizer = Adam(learning_rate=learning_rate),
                                  loss = vae_loss,
                                  metrics = ['accuracy'])
+        print(K.eval(self.autoencoder.optimizer.lr))
 
     def _encoderMeanVar(self, x, latent_rep_size, max_length, epsilon_std = 0.01):
         h = Convolution1D(9, 9, activation = 'relu', name='conv_1')(x) # used to be 2, 1
         h = Convolution1D(9, 9, activation = 'relu', name='conv_2')(h) # used to be 2, 1
         h = Convolution1D(10, 11, activation = 'relu', name='conv_3')(h) # used to be 3
         h = Flatten(name='flatten_1')(h)
-        h = Dense(435, activation = 'relu', name='dense_1')(h) # used to be 100, 30, 50, 200
+        h = Dense(512, activation = 'relu', name='dense_1')(h) # used to be 100, 30, 50, 200
 
         z_mean = Dense(latent_rep_size, name='z_mean', activation = 'linear')(h)
         z_log_var = Dense(latent_rep_size, name='z_log_var', activation = 'linear')(h)
@@ -79,7 +81,7 @@ class MoleculeVAE():
         h = Convolution1D(9, 9, activation = 'relu', name='conv_2')(h)
         h = Convolution1D(10, 11, activation = 'relu', name='conv_3')(h)
         h = Flatten(name='flatten_1')(h)
-        h = Dense(435, activation = 'relu', name='dense_1')(h)
+        h = Dense(512, activation = 'relu', name='dense_1')(h)
 
         def sampling(args):
             z_mean_, z_log_var_ = args
@@ -102,13 +104,13 @@ class MoleculeVAE():
     def _buildDecoder(self, z, latent_rep_size, max_length, charset_length):
         h = Dense(latent_rep_size, name='latent_input', activation = 'relu')(z)
         h = RepeatVector(max_length, name='repeat_vector')(h)
-        h = GRU(501, return_sequences = True, name='gru_1')(h)
-        h = GRU(501, return_sequences = True, name='gru_2')(h)
-        h = GRU(501, return_sequences = True, name='gru_3')(h)
+        h = GRU(512, return_sequences = True, name='gru_1')(h)
+        h = GRU(512, return_sequences = True, name='gru_2')(h)
+        h = GRU(512, return_sequences = True, name='gru_3')(h)
         return TimeDistributed(Dense(charset_length, activation='softmax'), name='decoded_mean')(h)
 
     def save(self, filename):
         self.autoencoder.save_weights(filename)
     
-    def load(self, charset, weights_file, latent_rep_size = 292, max_length = 120):
-        self.create(charset, weights_file = weights_file, latent_rep_size = latent_rep_size)
+    def load(self, charset, weights_file, latent_rep_size = 292, max_length = 120, learning_rate=0.0001):
+        self.create(charset, weights_file = weights_file, latent_rep_size = latent_rep_size, learning_rate=learning_rate)
