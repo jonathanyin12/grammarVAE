@@ -119,7 +119,7 @@ class MoleculeVAE():
             elif K.int_shape(x_decoded_mean)[1] == max_length_func:
                 x = K.flatten(x)
                 x_decoded_mean = K.flatten(x_decoded_mean)
-                xent_loss = 10 * mse(x, x_decoded_mean)
+                xent_loss = 50 * mse(x, x_decoded_mean)
             else:
                 raise ValueError('UNRECOGNIZED SHAPE')
 
